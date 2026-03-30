@@ -52,7 +52,13 @@ jobs:
       - name: Package skills
         run: |
           mkdir -p dist
-          for skill_dir in skills/*/; do
+          shopt -s nullglob
+          skill_dirs=(skills/*/)
+          if [ ${#skill_dirs[@]} -eq 0 ]; then
+            echo "No skills to package."
+            exit 0
+          fi
+          for skill_dir in "${skill_dirs[@]}"; do
             skill_name=$(basename "$skill_dir")
             zip -r "dist/${skill_name}.zip" "$skill_dir"
             echo "Packaged: dist/${skill_name}.zip"

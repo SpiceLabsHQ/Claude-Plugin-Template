@@ -8,7 +8,7 @@ A template for building Claude skills that work as both a **Claude Code plugin**
 
 ## Structure
 
-```
+```text
 .
 ├── .claude-plugin/
 │   └── plugin.json       # Claude Code plugin manifest
@@ -36,12 +36,12 @@ Download the `.zip` for your skill from the [latest release](../../releases/late
 
 Commit using [Conventional Commits](https://www.conventionalcommits.org/):
 
-| Prefix | Version bump |
-|--------|-------------|
-| `feat:` | minor |
-| `fix:`, `perf:`, `refactor:` | patch |
-| `BREAKING CHANGE` footer | major |
-| `docs:`, `chore:`, `ci:` | no release |
+| Prefix                       | Version bump |
+| ---------------------------- | ------------ |
+| `feat:`                      | minor        |
+| `fix:`, `perf:`, `refactor:` | patch        |
+| `BREAKING CHANGE` footer     | major        |
+| `docs:`, `chore:`, `ci:`     | no release   |
 
 CI validates all skills and releases automatically on every push to `main` that contains a release-worthy commit.
 

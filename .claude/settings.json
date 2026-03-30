@@ -11,6 +11,12 @@
             "type": "command",
             "statusMessage": "Validating plugin structure...",
             "command": "claude plugin validate \"$CLAUDE_PROJECT_DIR\""
+          },
+          {
+            "type": "command",
+            "if": "Write(*.md)|Edit(*.md)",
+            "statusMessage": "Linting markdown...",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && npx markdownlint-cli \"**/*.md\""
           }
         ]
       }

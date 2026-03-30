@@ -8,8 +8,10 @@ on:
 
 jobs:
   validate:
-    name: Validate Skills
+    name: Validate
     runs-on: ubuntu-latest
+    outputs:
+      has-skills: ${{ steps.check-skills.outputs.has-skills }}
     steps:
       - uses: actions/checkout@v4
 
@@ -22,12 +24,25 @@ jobs:
       - name: Lint markdown
         run: npx --yes markdownlint-cli "**/*.md"
 
+      - name: Check for skills
+        id: check-skills
+        run: |
+          shopt -s nullglob
+          skill_dirs=(skills/*/)
+          if [ ${#skill_dirs[@]} -gt 0 ]; then
+            echo "has-skills=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has-skills=false" >> "$GITHUB_OUTPUT"
+          fi
+
   release:
     name: Release
     needs: validate
     runs-on: ubuntu-latest
-    # Only release on pushes to main, not PRs
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: |
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      needs.validate.outputs.has-skills == 'true'
     permissions:
       contents: write
       issues: write
@@ -56,13 +71,7 @@ jobs:
       - name: Package skills
         run: |
           mkdir -p dist
-          shopt -s nullglob
-          skill_dirs=(skills/*/)
-          if [ ${#skill_dirs[@]} -eq 0 ]; then
-            echo "No skills to package."
-            exit 0
-          fi
-          for skill_dir in "${skill_dirs[@]}"; do
+          for skill_dir in skills/*/; do
             skill_name=$(basename "$skill_dir")
             zip -r "dist/${skill_name}.zip" "$skill_dir"
             echo "Packaged: dist/${skill_name}.zip"

@@ -19,6 +19,9 @@ jobs:
       - name: Validate plugin structure
         run: claude plugin validate .
 
+      - name: Lint markdown
+        run: npx --yes markdownlint-cli "**/*.md"
+
   release:
     name: Release
     needs: validate

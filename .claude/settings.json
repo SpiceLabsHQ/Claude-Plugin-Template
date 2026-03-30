@@ -1,0 +1,30 @@
+{
+  "enabledPlugins": {
+    "skill-creator@claude-plugins-official": true
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "statusMessage": "Validating plugin structure...",
+            "command": "claude plugin validate \"$CLAUDE_PROJECT_DIR\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "statusMessage": "Validating plugin structure...",
+            "command": "claude plugin validate \"$CLAUDE_PROJECT_DIR\""
+          }
+        ]
+      }
+    ]
+  }
+}

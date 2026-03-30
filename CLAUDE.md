@@ -6,24 +6,32 @@ This file provides guidance to Claude Code when working in this repository.
 
 This repo is a Claude plugin. It contains one or more skills under `skills/` that are distributed as a Claude Code plugin and as standalone Claude Desktop skill packages.
 
+Before working on any plugin component, read [docs/best-practices.md](docs/best-practices.md). It contains design guidance for every component type — skills, agents, hooks, MCP servers, and more.
+
+## Architecture decisions
+
+Significant decisions about this plugin are recorded as ADRs in [docs/adr/](docs/adr/README.md). Before starting non-trivial work, check the ADR index for prior decisions that may constrain or inform your approach.
+
+Write a new ADR when you are about to make a decision that is hard to reverse, has non-obvious trade-offs, or that you would otherwise capture only in a commit message. If a decision you are making conflicts with or supersedes an existing ADR, update that ADR's status before proceeding.
+
 ## Commit conventions
 
 This repo uses [Conventional Commits](https://www.conventionalcommits.org/). All commits must follow the format:
 
-```
+```text
 <type>(<optional scope>): <description>
 ```
 
 Common types and their effect on versioning:
 
-| Type | When to use | Release |
-|------|-------------|---------|
-| `feat` | New skill or meaningful new behavior | minor |
-| `fix` | Corrects unintended skill behavior | patch |
-| `refactor` | Restructures skill content without changing behavior | patch |
-| `docs` | README, CLAUDE.md, comments only — **never for `skills/` changes** | none |
-| `chore` | Dependency updates, config changes — **never for `skills/` changes** | none |
-| `ci` | Changes to GitHub Actions workflows | none |
+| Type       | When to use                                          | Release |
+| ---------- | ---------------------------------------------------- | ------- |
+| `feat`     | New skill or meaningful new behavior                 | minor   |
+| `fix`      | Corrects unintended skill behavior                   | patch   |
+| `refactor` | Restructures skill content without changing behavior | patch   |
+| `docs`     | README, CLAUDE.md, comments only                     | none    |
+| `chore`    | Dependency updates, config changes                   | none    |
+| `ci`       | Changes to GitHub Actions workflows                  | none    |
 
 A `BREAKING CHANGE:` footer on any commit triggers a major release.
 
@@ -35,7 +43,7 @@ Any change to files under `skills/` is a code change and must use a release-trig
 
 To create a new skill, use the `skill-creator` skill — it is pre-enabled in this repo and handles scaffolding, iteration, and evaluation:
 
-```
+```text
 /skill-creator
 ```
 
@@ -50,10 +58,12 @@ Each skill lives in `skills/<skill-name>/SKILL.md`. When adding or editing a ski
 The `name` and `description` fields are the primary signals the agent uses when deciding whether to automatically invoke a skill. Get these wrong and the skill will be ignored or misapplied.
 
 **Name** — use a verb-noun pair that describes the action, not the domain:
+
 - Good: `review-pr`, `generate-changelog`, `triage-issue`
 - Avoid: `pr-helper`, `changelog`, `issues` (too generic or noun-only)
 
 **Description** — write it from the agent's perspective: *when should I reach for this skill?* It should describe the trigger condition, not the implementation. Keep it under 250 characters — descriptions are truncated in the skill listing, and all skills in a plugin share a fixed context budget, so longer descriptions crowd out others.
+
 - Good: `"Use when the user asks to review a pull request for correctness, style, or security issues"`
 - Avoid: `"Reviews pull requests"` (describes what, not when)
 - Avoid: `"A helpful skill for PR review tasks"` (vague, no trigger signal)
@@ -61,9 +71,22 @@ The `name` and `description` fields are the primary signals the agent uses when 
 **Disambiguating similar skills** — if two skills could match the same request, prefer scoping with the `paths` frontmatter field over trying to word descriptions differently. A skill with `paths: "src/ui/**"` will only be considered when working with matching files, which is more reliable than description-level differentiation alone.
 
 **Other frontmatter that affects invocation:**
+
 - `paths` — Claude only considers the skill when working with files matching the glob
 - `disable-model-invocation: true` — Claude never auto-invokes this skill; it must be called explicitly with `/skill-name`. Use this for skills that should only run at user request.
 - `user-invocable: false` — hides the skill from the `/` menu so users never see or call it directly. Use this for skills designed to be exclusively called by other skills or agents rather than by humans.
+
+## Markdown
+
+Markdown is linted on every file edit via a `PostToolUse` hook (see `.claude/settings.json`) and on CI. The linter config is in `.markdownlint.json` — MD013 (line length) is disabled; all other rules are active.
+
+**Fixing table alignment errors (MD060):** column width is determined by the longest *cell* in that column, not the header. The separator row must match that width exactly, and every other cell must be padded with trailing spaces to the same width. Miscount by one character and the pipes will visibly shift.
+
+The reliable way to fix a misaligned table is:
+
+1. Find the longest cell in each column by character count
+2. Set the separator to exactly that many dashes
+3. Pad every other cell in that column with trailing spaces to match
 
 ## CI
 

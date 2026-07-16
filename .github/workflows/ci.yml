@@ -17,7 +17,7 @@ jobs:
     outputs:
       has-skills: ${{ steps.check-skills.outputs.has-skills }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install Claude Code
         run: npm install -g @anthropic-ai/claude-code
@@ -52,7 +52,7 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           persist-credentials: false
